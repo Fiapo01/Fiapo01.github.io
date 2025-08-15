@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cassino do guigui</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="container">
+  <h1>CASSINO</h1>
+
+  <div class="balance">Saldo: <span id="balance">500</span> créditos</div>
+
+  <!-- Seletor de aposta -->
+  <div class="bet-container">
+    <label for="betAmount">Escolha sua aposta:</label>
+    <select id="betAmount">
+      <option value="10">10 créditos</option>
+      <option value="20">20 créditos</option>
+      <option value="30">30 créditos</option>
+      <option value="50">50 créditos</option>
+    </select>
+  </div>
+
+  <div class="slot-machine">
+    <div id="reel1" class="reel">🍒</div>
+    <div id="reel2" class="reel">🍋</div>
+    <div id="reel3" class="reel">🍉</div>
+  </div>
+
+  <button id="spinBtn">Jogar</button>
+
+  <div id="result"></div>
+
+</div>
+
+
+<script>
+// Esses são os símbolos do caça-níquel (os emojis)
+const symbols = ["🍒", "🍋", "🍉"];
+
+// Pega os elementos da interface
+const reels = [
+  document.getElementById("reel1"),
+  document.getElementById("reel2"),
+  document.getElementById("reel3")
+];
+const spinBtn = document.getElementById("spinBtn");
+const resultDiv = document.getElementById("result");
+const balanceSpan = document.getElementById("balance");
+const betSelect = document.getElementById("betAmount");
+
+// Começa com 100 créditos
+let balance = 500;
+
+// Multiplicador fixo do prêmio
+const bonusMultiplier = 10;
+
+// Atualiza o texto do botão quando trocar aposta
+betSelect.addEventListener("change", () => {
+  spinBtn.textContent = `Jogar`;
+});
+
+// Quando clicar no botão
+spinBtn.addEventListener("click", () => {
+  const bet = parseInt(betSelect.value);
+
+  // Se não tiver saldo suficiente
+  if (balance < bet) {
+    resultDiv.textContent = "F5 pra recarregar o saldo";
+    resultDiv.style.color = "#f55";
+    return;
+  }
+
+  balance -= bet;
+  balanceSpan.textContent = balance;
+
+  spinBtn.disabled = true;
+  resultDiv.textContent = "";
+
+  let spins = [0, 0, 0];
+  const maxSpins = 20;
+  const spinInterval = 80;
+  let count = 0;
+
+  let interval = setInterval(() => {
+    for (let i = 0; i < reels.length; i++) {
+      reels[i].textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    }
+    count++;
+
+    if (count >= maxSpins) {
+      clearInterval(interval);
+
+      for (let i = 0; i < reels.length; i++) {
+        let finalSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+        reels[i].textContent = finalSymbol;
+        spins[i] = finalSymbol;
+      }
+
+      if (spins[0] === spins[1] && spins[1] === spins[2]) {
+        const winAmount = bet * bonusMultiplier;
+        balance += winAmount;
+        resultDiv.textContent = `Parabéns! Você ganhou ${winAmount} créditos!`;
+        resultDiv.style.color = "#4CAF50";
+      } else {
+        resultDiv.textContent = "Deu azar, tente novamente!";
+        resultDiv.style.color = "#ffb800";
+      }
+
+      balanceSpan.textContent = balance;
+      spinBtn.disabled = false;
+    }
+  }, spinInterval);
+});
+</script>
+</body>
+</html>
